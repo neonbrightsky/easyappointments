@@ -17,6 +17,7 @@ $disabled = $disabled ?? false; ?>
                 <?php endif; ?>
             </label>
             <input type="text" id="custom-field-<?= $i ?>"
+                   name="custom_field_<?= $i ?>"
                    class="<?= setting('require_custom_field_' . $i) ? 'required' : '' ?> form-control"
                    maxlength="120" <?= $disabled ? 'disabled' : '' ?>/>
         </div>
