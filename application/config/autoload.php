@@ -131,3 +131,6 @@ $autoload['model'] = [];
 
 /* End of file autoload.php */
 /* Location: ./application/config/autoload.php */
+
+$autoload['config'] = ['custom'];
+
