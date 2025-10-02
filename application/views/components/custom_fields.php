@@ -4,11 +4,10 @@
  *
  * @var bool $disabled (false)
  */
-
-$disabled = $disabled ?? false; ?>
-
-<?php $this->load->config('custom'); 
-$max = (int)$this->config->item('ea_max_custom_fields') ?: 12; ?>
+$disabled = $disabled ?? false; 
+$this->load->config('custom'); 
+$max = (int)$this->config->item('ea_max_custom_fields') ?: 12;
+?>
 
 <?php for ($i = 1; $i <= $max; $i++): ?>
     <?php if (setting('display_custom_field_' . $i)): ?>
