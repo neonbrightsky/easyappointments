@@ -48,6 +48,14 @@ class Customers_model extends EA_Model
         'customField3' => 'custom_field_3',
         'customField4' => 'custom_field_4',
         'customField5' => 'custom_field_5',
+        // [YOUR-FORK] expose extra custom fields 6..12 to the API
+        'customField6' => 'custom_field_6',
+        'customField7' => 'custom_field_7',
+        'customField8' => 'custom_field_8',
+        'customField9' => 'custom_field_9',
+        'customField10' => 'custom_field_10',
+        'customField11' => 'custom_field_11',
+        'customField12' => 'custom_field_12',
         'notes' => 'notes',
         'ldapDn' => 'ldap_dn',
     ];
@@ -67,6 +75,20 @@ class Customers_model extends EA_Model
 
         if ($this->exists($customer) && empty($customer['id'])) {
             $customer['id'] = $this->find_record_id($customer);
+        }
+
+        // [YOUR-FORK] Accept compact customFields[] and fan it out to custom_field_1..12
+        if (!empty($customer['customFields']) && is_array($customer['customFields'])) {
+            foreach ($customer['customFields'] as $i => $val) {
+                // allow 0-based or 1-based input
+                $idx = is_numeric($i) ? (int)$i : null;
+                if ($idx !== null) {
+                    if ($idx === 0) { $idx = 1; } // normalize if 0-based
+                    if ($idx >= 1 && $idx <= 12) {
+                        $customer['custom_field_' . $idx] = is_array($val) ? ($val['value'] ?? null) : $val;
+                    }
+                }
+            }
         }
 
         if (empty($customer['id'])) {
@@ -447,23 +469,31 @@ class Customers_model extends EA_Model
     public function api_encode(array &$customer): void
     {
         $encoded_resource = [
-            'id' => array_key_exists('id', $customer) ? (int) $customer['id'] : null,
+            'id'        => array_key_exists('id', $customer) ? (int) $customer['id'] : null,
             'firstName' => $customer['first_name'],
-            'lastName' => $customer['last_name'],
-            'email' => $customer['email'],
-            'phone' => $customer['phone_number'],
-            'address' => $customer['address'],
-            'city' => $customer['city'],
-            'zip' => $customer['zip_code'],
-            'notes' => $customer['notes'],
-            'timezone' => $customer['timezone'],
-            'language' => $customer['language'],
-            'customField1' => $customer['custom_field_1'],
-            'customField2' => $customer['custom_field_2'],
-            'customField3' => $customer['custom_field_3'],
-            'customField4' => $customer['custom_field_4'],
-            'customField5' => $customer['custom_field_5'],
-            'ldapDn' => $customer['ldap_dn'],
+            'lastName'  => $customer['last_name'],
+            'email'     => $customer['email'],
+            'phone'     => $customer['phone_number'],
+            'address'   => $customer['address'],
+            'city'      => $customer['city'],
+            'zip'       => $customer['zip_code'],
+            'notes'     => $customer['notes'],
+            'timezone'  => $customer['timezone'],
+            'language'  => $customer['language'],
+            'customField1'  => $customer['custom_field_1'],
+            'customField2'  => $customer['custom_field_2'],
+            'customField3'  => $customer['custom_field_3'],
+            'customField4'  => $customer['custom_field_4'],
+            'customField5'  => $customer['custom_field_5'],
+            // [YOUR-FORK] include 6..12
+            'customField6'  => $customer['custom_field_6'] ?? null,
+            'customField7'  => $customer['custom_field_7'] ?? null,
+            'customField8'  => $customer['custom_field_8'] ?? null,
+            'customField9'  => $customer['custom_field_9'] ?? null,
+            'customField10' => $customer['custom_field_10'] ?? null,
+            'customField11' => $customer['custom_field_11'] ?? null,
+            'customField12' => $customer['custom_field_12'] ?? null,
+            'ldapDn'        => $customer['ldap_dn'],
         ];
 
         $customer = $encoded_resource;
@@ -539,12 +569,45 @@ class Customers_model extends EA_Model
             $decoded_resource['custom_field_5'] = $customer['customField5'];
         }
 
+        // [YOUR-FORK] accept 6..12 individually
+        if (array_key_exists('customField6', $customer)) {
+            $decoded_resource['custom_field_6'] = $customer['customField6'];
+        }
+        if (array_key_exists('customField7', $customer)) {
+            $decoded_resource['custom_field_7'] = $customer['customField7'];
+        }
+        if (array_key_exists('customField8', $customer)) {
+            $decoded_resource['custom_field_8'] = $customer['customField8'];
+        }
+        if (array_key_exists('customField9', $customer)) {
+            $decoded_resource['custom_field_9'] = $customer['customField9'];
+        }
+        if (array_key_exists('customField10', $customer)) {
+            $decoded_resource['custom_field_10'] = $customer['customField10'];
+        }
+        if (array_key_exists('customField11', $customer)) {
+            $decoded_resource['custom_field_11'] = $customer['customField11'];
+        }
+        if (array_key_exists('customField12', $customer)) {
+            $decoded_resource['custom_field_12'] = $customer['customField12'];
+        }
+
         if (array_key_exists('ldapDn', $customer)) {
             $decoded_resource['ldap_dn'] = $customer['ldapDn'];
         }
 
         if (array_key_exists('notes', $customer)) {
             $decoded_resource['notes'] = $customer['notes'];
+        }
+
+        // [YOUR-FORK] also accept a compact array: customFields: {1: "A", 2: "B", ...}
+        if (array_key_exists('customFields', $customer) && is_array($customer['customFields'])) {
+            foreach ($customer['customFields'] as $i => $val) {
+                if (!is_numeric($i)) { continue; }
+                $idx = (int)$i;
+                if ($idx < 1 || $idx > 12) { continue; }
+                $decoded_resource['custom_field_' . $idx] = is_array($val) ? ($val['value'] ?? null) : $val;
+            }
         }
 
         $customer = $decoded_resource;
