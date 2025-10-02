@@ -68,5 +68,7 @@
 
 <?php slot('scripts'); ?>
 
+<script src="/easyappointments/assets/js/strict-slots-petar.js"></script>
+
 </body>
 </html>
