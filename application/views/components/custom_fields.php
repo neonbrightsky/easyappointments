@@ -7,7 +7,10 @@
 
 $disabled = $disabled ?? false; ?>
 
-<?php for ($i = 1; $i <= 5; $i++): ?>
+<?php $this->load->config('custom'); 
+$max = (int)$this->config->item('ea_max_custom_fields') ?: 12; ?>
+
+<?php for ($i = 1; $i <= $max; $i++): ?>
     <?php if (setting('display_custom_field_' . $i)): ?>
         <div class="mb-3">
             <label for="custom-field-<?= $i ?>" class="form-label">
